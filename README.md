@@ -2,6 +2,8 @@
 
 Interactive, production-style playground to parse code into execution steps, auto-layout a flow graph, and step through state. Ships with JavaScript/TypeScript (Babel) and lightweight C++ support.
 
+**Live demo:** https://code-flow-viz.vercel.app/
+
 ## Stack
 - Next.js 14 (App Router) + TypeScript + Tailwind
 - React Flow for graphing, dagre for layout
@@ -23,6 +25,10 @@ npm run dev
 # app at http://localhost:3000
 ```
 
+## Prereqs
+- Node 18+ (recommended)
+- npm (bundled with Node)
+
 ## Scripts
 - `npm run dev` — start dev server (Turbopack)
 - `npm run lint` — lint
@@ -33,6 +39,16 @@ npm run dev
 2) Choose language (JS/TS or C++).
 3) Play/step/reset to walk the flow; the active node glows orange.
 4) Watch live variables in the tracker.
+
+Sample JS snippet to try:
+```js
+function fib(n) {
+	if (n <= 1) return n;
+	return fib(n - 1) + fib(n - 2);
+}
+
+const out = fib(5);
+```
 
 ## Notes on parsing
 - JS/TS: parsed via Babel AST; expressions are evaluated best-effort for simple literals/ops.
@@ -50,6 +66,11 @@ npm run dev
 ## Known warnings
 - Next.js may warn about multiple lockfiles; set `turbopack.root` or keep a single lockfile.
 - React Flow may warn about recreating nodeTypes/edgeTypes; current usage is acceptable for this setup, but memoizing a custom node map would silence it.
+
+## Roadmap ideas
+- Swap C++ regex parsing for tree-sitter-cpp or clang-based parsing.
+- Custom React Flow node types with richer metadata and memoized type maps.
+- Persist user code (localStorage) and shareable permalinks.
 
 ## Deploy
 Push to GitHub, then deploy on Vercel (auto-detects Next.js). Ensure environment uses Node 18+.
