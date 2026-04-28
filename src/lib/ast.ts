@@ -1,8 +1,8 @@
-import { parse, type ParserOptions } from "@babel/parser";
 import traverse from "@babel/traverse";
 import * as t from "@babel/types";
 import dagre from "dagre";
 import { Edge, MarkerType, Node } from "reactflow";
+import { parseCode } from "./parser";
 
 export type VariableSnapshot = Record<string, unknown>;
 
@@ -23,11 +23,6 @@ export type FlowNodeData = {
 };
 
 export type Language = "javascript" | "cpp";
-
-const parserOptions: ParserOptions = {
-  sourceType: "module",
-  plugins: ["typescript", "jsx"],
-};
 
 const evaluateExpression = (
   node: t.Expression | t.PatternLike | null | undefined,
@@ -202,15 +197,17 @@ export const addEdgeMarkers = (
 const buildFlowJs = (
   code: string,
 ): { steps: FlowStep[]; nodes: Node<FlowNodeData>[]; edges: Edge[] } => {
-  let ast;
-  try {
-    ast = parse(code, parserOptions);
-  } catch (error) {
+  const parseResult = parseCode(code);
+  if (!parseResult.success) {
     const steps: FlowStep[] = [
       {
         id: "parse-error",
         label: "Syntax error",
-        detail: error instanceof Error ? error.message : "Unable to parse code",
+        detail: `${parseResult.error.message}${
+          parseResult.error.line !== undefined && parseResult.error.column !== undefined
+            ? ` (line ${parseResult.error.line}, column ${parseResult.error.column})`
+            : ""
+        }`,
         variables: {},
         type: "info",
       },
@@ -218,6 +215,8 @@ const buildFlowJs = (
     const { nodes, edges } = addEdgeMarkers(steps);
     return { steps, nodes, edges };
   }
+
+  const ast = parseResult.ast;
 
   const scope: VariableSnapshot = {};
   const steps: FlowStep[] = [];
