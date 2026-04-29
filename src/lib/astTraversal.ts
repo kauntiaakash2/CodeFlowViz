@@ -11,6 +11,8 @@ export type SimplifiedAstNode = {
   type: TraversalNodeType;
   label: string;
   children: SimplifiedAstNode[];
+  trueBranch?: SimplifiedAstNode[];
+  falseBranch?: SimplifiedAstNode[];
 };
 
 export type SimplifiedAst = {
@@ -51,7 +53,14 @@ const getExpressionLabel = (expression: t.Expression): string => {
   return expression.type;
 };
 
-const getLoopLabel = (node: t.ForStatement | t.ForInStatement | t.ForOfStatement | t.WhileStatement | t.DoWhileStatement): string => {
+const getLoopLabel = (
+  node:
+    | t.ForStatement
+    | t.ForInStatement
+    | t.ForOfStatement
+    | t.WhileStatement
+    | t.DoWhileStatement,
+): string => {
   if (t.isForStatement(node)) return "for";
   if (t.isForInStatement(node)) return "for-in";
   if (t.isForOfStatement(node)) return "for-of";
@@ -80,16 +89,15 @@ const extractFromNode = (
   }
 
   if (t.isIfStatement(node)) {
-    const children: SimplifiedAstNode[] = [
-      ...extractFromNode(node.consequent, depth + 1, maxDepth),
-      ...(node.alternate ? extractFromNode(node.alternate, depth + 1, maxDepth) : []),
-    ];
-
     return [
       {
         type: "if",
         label: "if",
-        children,
+        children: [],
+        trueBranch: extractFromNode(node.consequent, depth + 1, maxDepth),
+        falseBranch: node.alternate
+          ? extractFromNode(node.alternate, depth + 1, maxDepth)
+          : [],
       },
     ];
   }
