@@ -17,6 +17,8 @@ export default function Home() {
   const pause = useFlowStore((state) => state.pause);
   const currentStep = useFlowStore((state) => state.currentStep);
   const totalSteps = useFlowStore((state) => state.steps.length);
+  const steps = useFlowStore((state) => state.steps);
+  const speedMs = useFlowStore((state) => state.speedMs);
   const language = useFlowStore((state) => state.language);
   const setLanguage = useFlowStore((state) => state.setLanguage);
 
@@ -31,11 +33,13 @@ export default function Home() {
 
   useEffect(() => {
     if (!playing) return undefined;
-    const id = setInterval(() => {
+    const currentType = steps[currentStep]?.type;
+    const delay = currentType === "condition" ? speedMs + 280 : speedMs;
+    const id = setTimeout(() => {
       stepForward();
-    }, 900);
-    return () => clearInterval(id);
-  }, [playing, stepForward]);
+    }, delay);
+    return () => clearTimeout(id);
+  }, [playing, stepForward, speedMs, steps, currentStep]);
 
   useEffect(() => {
     if (playing && currentStep >= totalSteps - 1) {

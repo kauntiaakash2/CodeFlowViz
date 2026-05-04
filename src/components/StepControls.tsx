@@ -10,6 +10,11 @@ export function StepControls() {
   const reset = useFlowStore((state) => state.reset);
   const stepForward = useFlowStore((state) => state.stepForward);
   const currentStep = useFlowStore((state) => state.currentStep);
+  const history = useFlowStore((state) => state.history);
+  const executionPath = useFlowStore((state) => state.executionPath);
+  const speedMs = useFlowStore((state) => state.speedMs);
+  const setSpeedMs = useFlowStore((state) => state.setSpeedMs);
+  const currentNode = useFlowStore((state) => state.steps[state.currentStep]?.label ?? "-");
   const totalSteps = useFlowStore((state) => state.steps.length);
 
   const atEnd = currentStep >= Math.max(totalSteps - 1, 0);
@@ -53,6 +58,31 @@ export function StepControls() {
         >
           ↦ Step
         </button>
+      </div>
+      <div className="mt-4 space-y-3">
+        <label className="block text-xs text-zinc-400">
+          Speed ({Math.round(1000 / speedMs)}x)
+          <input
+            type="range"
+            min={300}
+            max={2000}
+            step={100}
+            value={speedMs}
+            onChange={(e) => setSpeedMs(Number(e.target.value))}
+            className="mt-2 w-full accent-[var(--accent)]"
+          />
+        </label>
+        <div className="rounded-xl border border-[var(--border)] bg-[#151515] p-3 text-xs text-zinc-300">
+          <p>
+            <span className="text-zinc-400">Current node:</span> {currentNode}
+          </p>
+          <p>
+            <span className="text-zinc-400">Execution path:</span> {executionPath.length} nodes
+          </p>
+          <p>
+            <span className="text-zinc-400">Visited history:</span> {history.length} steps
+          </p>
+        </div>
       </div>
     </motion.div>
   );
