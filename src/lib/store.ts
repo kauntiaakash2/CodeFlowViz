@@ -41,6 +41,9 @@ interface FlowState {
   nodes: Node<FlowNodeData>[];
   edges: Edge[];
   currentStep: number;
+  history: number[];
+  executionPath: string[];
+  speedMs: number;
   playing: boolean;
   setCode: (code: string) => void;
   setLanguage: (language: Language) => void;
@@ -50,6 +53,7 @@ interface FlowState {
   reset: () => void;
   stepForward: () => void;
   setCurrentStep: (step: number) => void;
+  setSpeedMs: (speedMs: number) => void;
 }
 
 export const useFlowStore = create<FlowState>((set, get) => ({
@@ -59,6 +63,9 @@ export const useFlowStore = create<FlowState>((set, get) => ({
   nodes: [],
   edges: [],
   currentStep: 0,
+  history: [0],
+  executionPath: [],
+  speedMs: 900,
   playing: false,
   setCode: (code) => set({ code }),
   setLanguage: (language) => {
@@ -66,29 +73,44 @@ export const useFlowStore = create<FlowState>((set, get) => ({
       language,
       code: language === "cpp" ? defaultCpp : defaultCode,
       currentStep: 0,
+      history: [0],
+      executionPath: [],
       playing: false,
     });
     const { steps, nodes, edges } = buildFlow(
       language === "cpp" ? defaultCpp : defaultCode,
       language,
     );
-    set({ steps, nodes, edges });
+    set({ steps, nodes, edges, executionPath: steps.map((step) => step.id) });
   },
   refreshFlow: () => {
     const { code, language } = get();
     const { steps, nodes, edges } = buildFlow(code, language);
-    set({ steps, nodes, edges, currentStep: 0, playing: false });
+    set({
+      steps,
+      nodes,
+      edges,
+      currentStep: 0,
+      history: [0],
+      executionPath: steps.map((step) => step.id),
+      playing: false,
+    });
   },
   play: () => set({ playing: true }),
   pause: () => set({ playing: false }),
-  reset: () => set({ currentStep: 0, playing: false }),
+  reset: () => set({ currentStep: 0, history: [0], playing: false }),
   stepForward: () => {
-    const { currentStep, steps } = get();
-    if (currentStep < steps.length - 1) {
-      set({ currentStep: currentStep + 1 });
+    const { currentStep, steps, history } = get();
+    const nextStep = currentStep + 1;
+    if (nextStep < steps.length) {
+      set({ currentStep: nextStep, history: [...history, nextStep] });
     } else {
       set({ playing: false });
     }
   },
-  setCurrentStep: (step) => set({ currentStep: step }),
+  setCurrentStep: (step) => {
+    const boundedStep = Math.max(step, 0);
+    set((state) => ({ currentStep: boundedStep, history: [...state.history, boundedStep] }));
+  },
+  setSpeedMs: (speedMs) => set({ speedMs }),
 }));
