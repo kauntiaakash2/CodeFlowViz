@@ -1,22 +1,24 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Activity,
-  ChevronLeft,
-  ChevronRight,
-  CirclePlay,
-  Gauge,
-  Play,
-  Search,
-  TerminalSquare,
-  Workflow,
-} from "lucide-react";
 import { useMemo, useState } from "react";
+
+type IconProps = { className?: string };
+
+const iconBase = "h-5 w-5";
+const Workflow = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>◧</span>;
+const TerminalSquare = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>⌘</span>;
+const Gauge = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>◔</span>;
+const Search = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>⌕</span>;
+const CirclePlay = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>⏵</span>;
+const Play = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>▶</span>;
+const ChevronLeft = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>‹</span>;
+const ChevronRight = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>›</span>;
+const Activity = ({ className = "" }: IconProps) => <span className={`${iconBase} ${className}`}>≈</span>;
 
 type Screen = "explorer" | "debugger" | "performance";
 
-const navItems: { key: Screen; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+const navItems: { key: Screen; label: string; icon: React.ComponentType<IconProps> }[] = [
   { key: "explorer", label: "Explorer", icon: Workflow },
   { key: "debugger", label: "Debugger", icon: TerminalSquare },
   { key: "performance", label: "Performance", icon: Gauge },
